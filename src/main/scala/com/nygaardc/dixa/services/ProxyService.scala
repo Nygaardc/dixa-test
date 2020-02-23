@@ -17,7 +17,7 @@ import io.catbird.util._
 
 object ProxyService extends TwitterServer {
 
-  val port = flag[Int]("port", 8081, "port to serve web api on")
+  val port = flag[Int]("port", 8081, "port to serve REST api on")
 
   def main(): Unit = {
     val client = ThriftMux.client
@@ -33,7 +33,7 @@ object ProxyService extends TwitterServer {
 
     val server = Http.server
       .withStreaming(enabled = true)
-      .withLabel("web-api")
+      .withLabel("rest-api")
       .withResponseClassifier(HttpResponseClassifier.ServerErrorsAsFailures)
       .serve(s":${port()}", api.toService)
 
