@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.nygaardc.dixa.grpc";
+option java_outer_classname = "PrimeNumberService";
+
+package dixa;
+
+service PrimeNumberService {
+    rpc get (PrimeNumberRequest) returns (stream PrimeNumberResponse);
+}
+
+message PrimeNumberRequest {
+    int32 n = 1;
+}
+
+message PrimeNumberResponse {
+    int32 prime = 1;
+}
