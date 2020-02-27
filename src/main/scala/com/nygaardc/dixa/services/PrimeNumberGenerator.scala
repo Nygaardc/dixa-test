@@ -1,6 +1,6 @@
 package com.nygaardc.dixa.services
 
-import com.nygaardc.dixa.thrift.PrimeNumberService
+import com.nygaardc.dixa.thrift.{BadInput, PrimeNumberService}
 import com.twitter.util.Future
 
 import scala.collection.mutable
@@ -17,6 +17,7 @@ class PrimeNumberGenerator extends PrimeNumberService.MethodPerEndpoint {
   https://medium.com/coding-with-clarity/functional-vs-iterative-prime-numbers-in-scala-7e22447146f0
    */
   def getPrimes(n: Int): List[Int] = {
+    if (n < 2) throw new BadInput("Input cannot be < 2")
     val indexOfPrimes = mutable.ArrayBuffer.fill((n + 1) / 2)(1)
 
     val end = Math.sqrt(n).toInt // optimization: early stopping
@@ -26,20 +27,11 @@ class PrimeNumberGenerator extends PrimeNumberService.MethodPerEndpoint {
       }
     }
 
-    ( for (i <- indexOfPrimes.indices if indexOfPrimes(i) == 1)
+    val primes = for (
+      i <- indexOfPrimes.indices if indexOfPrimes(i) == 1)
       yield 2 * i + 1
-    ).tail.toList
-  }
 
-  /* Functional but slow approach */
-  //  override def get(n: Int): Future[Stream[Int]] = {
-  //    val primes = sieve(Stream.from(2))
-  //    Future.value(
-  //      primes.takeWhile(_ <= n)
-  //    )
-  //  }
-  //
-  //  def sieve(stream: Stream[Int]): Stream[Int] =
-  //    stream.head #:: sieve(stream.tail filter(_ % stream.head != 0))
+    2 +: (primes tail).toList
+  }
 
 }
