@@ -1,4 +1,4 @@
-package com.nygaardc.dixa.services
+package com.nygaardc.dixa.services.finagle
 
 import com.nygaardc.dixa.thrift.{BadInput, PrimeNumberService}
 import com.twitter.util.Future

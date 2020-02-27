@@ -1,5 +1,6 @@
 package com.nygaardc.dixa.services
 
+import com.nygaardc.dixa.services.finagle.PrimeNumberGenerator
 import com.nygaardc.dixa.thrift.BadInput
 import org.scalatest.funsuite.AsyncFunSuite
 import com.twitter.util.{Return, Throw, Future => TwitterFuture}
