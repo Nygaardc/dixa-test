@@ -1,9 +1,10 @@
 package com.nygaardc.dixa.services
 
-import com.nygaardc.dixa.thrift.PrimeNumberService
+import com.nygaardc.dixa.thrift.{BadInput, PrimeNumberService}
 import com.twitter.finagle.http.service.HttpResponseClassifier
 import com.twitter.finagle.thriftmux.service.ThriftMuxResponseClassifier
 import com.twitter.finagle.{Http, Thrift, ThriftMux}
+import com.twitter.io.Buf
 import com.twitter.server.TwitterServer
 import com.twitter.util.{Await, Future}
 import io.finch._
@@ -29,7 +30,10 @@ object ProxyService extends TwitterServer {
       client
         .get(n)
         .map { primes => Ok(Enumerator.enumIterable[Future, Int](primes)) }
+    } handle {
+        case e: BadInput => BadRequest(e)
     }
+
 
     val server = Http.server
       .withStreaming(enabled = true)
