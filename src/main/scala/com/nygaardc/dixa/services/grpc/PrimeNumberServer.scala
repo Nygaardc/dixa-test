@@ -11,10 +11,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object PrimeNumberServer {
   def main(args: Array[String]): Unit = {
-    val conf = ConfigFactory
-      .parseString("akka.http.server.preview.enable-http2 = on")
-      .withFallback(ConfigFactory.defaultApplication())
-    val system = ActorSystem("PrimeNumber", conf)
+//    val conf = ConfigFactory
+//      .parseString("akka.http.server.preview.enable-http2 = on")
+//      .withFallback(ConfigFactory.defaultApplication())
+//    val system = ActorSystem("PrimeNumber", conf)
+    val system = ActorSystem("PrimeNumber")
     new PrimeNumberServer(system).run()
   }
 }
@@ -29,7 +30,7 @@ class PrimeNumberServer(system: ActorSystem) {
 
     val binding = Http().bindAndHandleAsync(
       service,
-      interface = "127.0.0.1",
+      interface = "localhost",
       port = 8080,
       connectionContext = HttpConnectionContext()
     )

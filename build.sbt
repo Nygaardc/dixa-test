@@ -1,5 +1,5 @@
 name := "dixa-test"
-version := "0.1"
+version := "1.0"
 scalaVersion := "2.12.10"
 
 resolvers += Resolver.bintrayRepo("thesamet", "sbt-protoc")
@@ -19,10 +19,12 @@ libraryDependencies ++= Seq(
   "org.scalactic" %% "scalactic" % "3.1.1",
   "org.scalatest" %% "scalatest" % "3.1.1" % "test ",
   "com.typesafe.akka" %% "akka-stream" % "2.6.3",
-  "com.typesafe.akka" %% "akka-http"   % "10.1.11"
+  "com.typesafe.akka" %% "akka-http"   % "10.1.11",
+//  "com.typesafe.akka" %% "akka-http2-support" % "10.1.11",
+  "com.typesafe.akka" %% "akka-discovery"   % "2.6.3"
 )
 
 enablePlugins(AkkaGrpcPlugin)
 // ALPN agent
-enablePlugins(JavaAgent)
-javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.9" % "runtime;test"
+//enablePlugins(JavaAgent)
+//javaAgents += "org.mortbay.jetty.alpn" % "jetty-alpn-agent" % "2.0.9" % "runtime;test"
