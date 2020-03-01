@@ -1,32 +1,48 @@
 package com.nygaardc.dixa.services.grpc
 
-import akka.Done
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
-import akka.stream.ActorMaterializer
-import com.nygaardc.dixa.grpc.{PrimeNumberRequest, PrimeNumberService, PrimeNumberServiceClient}
-import com.typesafe.config.{Config, ConfigFactory}
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.common.{CsvEntityStreamingSupport, EntityStreamingSupport}
+import akka.http.scaladsl.marshalling.{Marshaller, Marshalling}
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.server.Directives._
+import akka.util.ByteString
+import com.nygaardc.dixa.grpc.{PrimeNumberRequest, PrimeNumberResponse, PrimeNumberService, PrimeNumberServiceClient}
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.io.StdIn
 
 object ProxyService {
   def main(args: Array[String]): Unit = {
     implicit val sys = ActorSystem("ProxyService")
-    implicit val mat = ActorMaterializer()
     implicit val ec = sys.dispatcher
 
-//    val settings = GrpcClientSettings.connectToServiceAt("localhost", 8080)
-    val settings = GrpcClientSettings.fromConfig(PrimeNumberService.name)
+    val settings = GrpcClientSettings.connectToServiceAt("localhost", 8080).withTls(false)
     val client: PrimeNumberService = PrimeNumberServiceClient(settings)
 
-    val responseStream = client.get(PrimeNumberRequest(17))
-    val done: Future[Done] = responseStream.runForeach(resp => println(s"Receieved: ${resp.prime}"))
-    done.onComplete {
-      case Success(_) => println("stream done")
-      case Failure(e) => println(s"Error: ${e}")
+    implicit val csvFormat = Marshaller.strict[PrimeNumberResponse, ByteString] { resp =>
+      Marshalling.WithFixedContentType(ContentTypes.`text/csv(UTF-8)`, () => {
+        val prime = resp.prime
+        ByteString(List(prime).mkString(","))
+      })
     }
-//    sys.scheduler.scheduleAtFixedRate(1.second, 1.second) {    }
+
+    implicit val streamingSupport: CsvEntityStreamingSupport = EntityStreamingSupport.csv()
+
+    val route =
+      pathPrefix("prime" / IntNumber) { n =>
+        get {
+          if (n < 2) complete(HttpResponse(StatusCodes.BadRequest, entity = "Error: number must not be < 2\n"))
+          else complete { client.get(PrimeNumberRequest(n)) }
+        }
+      }
+
+    val bindingFuture = Http().bindAndHandle(route, "localhost", 8081)
+    println("Proxy server online at localhost:8081")
+    StdIn.readLine()
+    bindingFuture
+      .flatMap(_.unbind())
+      .onComplete(_ => sys.terminate())
+
   }
 }
