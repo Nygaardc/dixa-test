@@ -1,12 +1,9 @@
-package com.nygaardc.dixa.services
+package com.nygaardc.dixa.services.finagle
 
-import com.nygaardc.dixa.services.finagle.PrimeNumberGenerator
 import com.nygaardc.dixa.thrift.BadInput
-import org.scalatest.funsuite.AsyncFunSuite
 import com.twitter.util.{Return, Throw, Future => TwitterFuture}
-
+import org.scalatest.funsuite.AsyncFunSuite
 import scala.concurrent.{Future, Promise}
-import scala.concurrent.Future
 
 
 class PrimeNumberGeneratorTest extends AsyncFunSuite {
